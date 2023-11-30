@@ -30,6 +30,15 @@ ifeq ($(OS),Windows_NT)
     done)
 endif
 
+
+# Use Python to find the include path and version
+PYTHON_INCLUDE_PATH = $(shell python3 -c "import sysconfig; print(sysconfig.get_path('include'))")
+FALLBACK_PYTHON_VERSION = $(shell python3 -c "import platform; print('3.'+str(platform.python_version()).split('3.')[-1].split('.')[0])")
+
+ifeq ($(PYTHON_VERSION),)
+    PYTHON_VERSION = $(FALLBACK_PYTHON_VERSION)
+endif
+
 ifeq ($(PYTHON_VERSION),)
     $(error Python headers not found)
 endif
@@ -37,7 +46,7 @@ endif
 all: $(TARGET).so
 
 $(TARGET).so: $(SRC)
-	$(CC) $(CFLAGS) -shared -o $(TARGET).so $(SRC) -I/usr/include/python$(PYTHON_VERSION) -lpython$(PYTHON_VERSION)
+	$(CC) $(CFLAGS) -shared -o $(TARGET).so $(SRC) -I$(PYTHON_INCLUDE_PATH) -lpython$(PYTHON_VERSION)
 
 clean:
 	rm -f $(TARGET).so
