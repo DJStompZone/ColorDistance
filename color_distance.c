@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
+
+#ifdef _WIN32
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
 
 // Function to convert a single hexadecimal digit to its decimal value
 int hex_char_to_int(char c)
@@ -85,21 +92,20 @@ static struct PyModuleDef color_distance_module = {
     ColorDistanceMethods};
 
 // Module initialization function
-PyMODINIT_FUNC PyInit_color_distance(void)
+DLL_EXPORT PyMODINIT_FUNC PyInit_color_distance(void)
 {
     return PyModule_Create(&color_distance_module);
 }
 
 // Obligatory main function for testing
-//
-// int main() {
-//     const char *color1 = "#555555";
-//     const char *color2 = "#777777";
-//     double threshold = 69.0;
-//     double dist = color_distance(color1, color2);
+int main() {
+    const char *color1 = "#555555";
+    const char *color2 = "#777777";
+    double threshold = 69.0;
+    double dist = color_distance(color1, color2);
 
-//     printf("Distance between %s and %s is: %.2f\n", color1, color2, dist);
-//     printf("Within Threshold: %s\n", (dist <= threshold) ? "Yes" : "No");
+    printf("Distance between %s and %s is: %.2f\n", color1, color2, dist);
+    printf("Within Threshold: %s\n", (dist <= threshold) ? "Yes" : "No");
 
-//     return 0;
-// }
+    return 0;
+}

@@ -15,7 +15,7 @@ ifeq ($(UNAME_S),Linux)
 endif
 ifeq ($(UNAME_S),Darwin)
     PYTHON_VERSION = $(shell for ver in $(PYTHON_VERSIONS); do \
-        if [ -d "/usr/include/python$$ver" ]; then \
+        if [ -d "/Users/desco/.pyenv/versions/3.$$ver/include/python3.$$ver" ]; then \
             echo $$ver; \
             break; \
         fi; \
@@ -30,9 +30,11 @@ ifeq ($(OS),Windows_NT)
     done)
 endif
 
-
-# Use Python to find the include path and version
+# Use Python to find the include path
 PYTHON_INCLUDE_PATH = $(shell python3 -c "import sysconfig; print(sysconfig.get_path('include'))")
+# Dynamically set the library path based on Python version
+PYTHON_LIB_PATH = $(shell python3 -c "import sysconfig; print('/'.join(sysconfig.get_path('stdlib').split('/')[:-2])+'/lib')")
+
 FALLBACK_PYTHON_VERSION = $(shell python3 -c "import platform; print('3.'+str(platform.python_version()).split('3.')[-1].split('.')[0])")
 
 ifeq ($(PYTHON_VERSION),)
@@ -46,7 +48,7 @@ endif
 all: $(TARGET).so
 
 $(TARGET).so: $(SRC)
-	$(CC) $(CFLAGS) -shared -o $(TARGET).so $(SRC) -I$(PYTHON_INCLUDE_PATH) -lpython$(PYTHON_VERSION)
+	$(CC) $(CFLAGS) -shared -o $(TARGET).so $(SRC) -I$(PYTHON_INCLUDE_PATH) -L$(PYTHON_LIB_PATH) -lpython$(PYTHON_VERSION)
 
 clean:
 	rm -f $(TARGET).so
